@@ -21,6 +21,7 @@ using CUE4Parse.UE4.IO;
 using CUE4Parse.UE4.IO.Objects;
 using CUE4Parse.UE4.Objects.Engine;
 using CUE4Parse.Utils;
+using CUE4Parse.FileProvider.Objects;
 using DynamicData;
 using DynamicData.Binding;
 using FluentAvalonia.UI.Controls;
@@ -42,14 +43,18 @@ using FortnitePorting.Windows;
 using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
+using System.IO;
+using Newtonsoft.Json.Linq;
+using Avalonia.Platform;
+using Flurl.Util;
 
 namespace FortnitePorting.ViewModels;
 
-public partial class FilesViewModel() : ViewModelBase
+public partial class CustomViewModel() : ViewModelBase
 {
     [ObservableProperty] private CUE4ParseService _CUE4Parse;
     
-    public FilesViewModel(CUE4ParseService cue4Parse) : this()
+    public CustomViewModel(CUE4ParseService cue4Parse) : this()
     {
         CUE4Parse = cue4Parse;
     }
@@ -233,10 +238,92 @@ public partial class FilesViewModel() : ViewModelBase
     {
         var selectedItem = SelectedFlatViewItems.FirstOrDefault();
         if (selectedItem is null) return;
-
+        
         var assets = await CUE4Parse.Provider.LoadAllObjectsAsync(Exporter.FixPath(selectedItem.Path));
         var json = JsonConvert.SerializeObject(assets, Formatting.Indented);
         PropertiesPreviewWindow.Preview(selectedItem.Path.SubstringAfterLast("/").SubstringBefore("."), json);
+    }
+
+    [ObservableProperty] private string exportWeaponImagesPath;
+    // public string ExportWeaponImagesPath => exportWeaponImagesPath;
+
+    private string? _exportWeaponIds;
+    public string? ExportWeaponIds
+    {
+        get => _exportWeaponIds;
+        set
+        {
+            _exportWeaponIds = value;
+            OnPropertyChanged();
+        }
+    }
+
+    [RelayCommand]
+    public async Task ExportWeaponImagesSelectPath()
+    {
+        if (await App.BrowseFolderDialog() is { } path) ExportWeaponImagesPath = path;
+    }
+
+    [RelayCommand]
+    public async Task ExportWeaponImagesExecute()
+    {
+        // Split selected weapon Ids by line
+        List<string> selectedWeaponFileNames = ExportWeaponIds
+            .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(line => line.Trim())
+            .Where(line => !string.IsNullOrWhiteSpace(line))
+            .ToList();
+
+        // List<GameFile> widFiles = new List<GameFile>();
+        foreach (var (_, file) in CUE4Parse.Provider.Files)
+        {
+            // Check file path and name
+            var path = file.Path;
+            if (!IsValidFilePath(path)) continue;
+            if (Path.GetExtension(path) != ".uasset") continue;
+            var filename = Path.GetFileNameWithoutExtension(path);
+            if (!filename.StartsWith("WID_")) continue;
+            if (!selectedWeaponFileNames.Contains(filename)) continue;
+
+            var assets = await CUE4Parse.Provider.LoadAllObjectsAsync(Exporter.FixPath(path));
+            int index = 0;
+            foreach(var iAsset in assets)
+            {
+                UObject plop = iAsset;
+
+                Debug.WriteLine(iAsset.ExportType);
+
+                var json = JsonConvert.SerializeObject(iAsset, Formatting.Indented);
+
+                await File.WriteAllTextAsync(Path.Combine(ExportWeaponImagesPath, filename + "_" + index + ".json"), json);
+            }
+            
+            // Debug.WriteLine(json);
+
+            // JArray jsonArray = JArray.Parse(json);
+            // JArray bDataList = jsonArray[0]?["Properties"]?["DataList"] as JArray;
+            // if (bDataList != null)
+            // {
+            //     bool founded = false;
+            //     foreach (JObject iData in bDataList)
+            //     {
+            //         if (iData["LargeIcon"] != null)
+            //         {
+            //             string largeIconValue = iData["LargeIcon"]["AssetPathName"].ToString();
+            //             // largeIconValue = largeIconValue.Substring(largeIconValue.LastIndexOf(".") + 1);
+            //             // founded = true;
+            //             // string imCUE4Parse.Provider.LoadAllObjectsAsyncagePath = Path.Combine(imageFolderPath, largeIconValue + ".png");
+            //             Debug.WriteLine(largeIconValue);
+            //         }
+            //     }
+            // }
+
+            // Debug.WriteLine(largeIconValue);
+
+            // widFiles.Add(file);
+        }
+
+        // Debug.WriteLine(widFiles.Count);
     }
     
     [RelayCommand]

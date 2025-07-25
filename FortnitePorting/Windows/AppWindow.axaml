@@ -81,6 +81,12 @@
                          <ui:PathIconSource Data="{ext:MaterialKindToGeometry Map}"/>
                      </ui:NavigationViewItem.IconSource>
                  </ui:NavigationViewItem>
+                 <ui:NavigationViewItemSeparator/>
+                 <ui:NavigationViewItem Content="Custom" Tag="{x:Type views:CustomView}" IsEnabled="{Binding UEParse.FinishedLoading}">
+                     <ui:NavigationViewItem.IconSource>
+                         <ui:PathIconSource Data="{ext:MaterialKindToGeometry Folder}"/>
+                     </ui:NavigationViewItem.IconSource>
+                 </ui:NavigationViewItem>
                  
              </ui:NavigationView.MenuItems>
              <ui:NavigationView.FooterMenuItems>

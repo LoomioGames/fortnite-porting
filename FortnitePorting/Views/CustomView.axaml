@@ -1,0 +1,54 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:viewModels="clr-namespace:FortnitePorting.ViewModels"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:ext="clr-namespace:FortnitePorting.Extensions;assembly=FortnitePorting"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:versions="clr-namespace:CUE4Parse.UE4.Versions;assembly=CUE4Parse"
+             xmlns:shared="clr-namespace:FortnitePorting.Shared;assembly=FortnitePorting.Shared"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:FortnitePorting.Controls"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:icons="clr-namespace:Material.Icons;assembly=Material.Icons"
+             xmlns:files="clr-namespace:FortnitePorting.Models.Files"
+             xmlns:views="clr-namespace:FortnitePorting.Views"
+             xmlns:fortnitePorting="clr-namespace:FortnitePorting"
+             d:DesignHeight="770" d:DesignWidth="1160"
+             x:Class="FortnitePorting.Views.CustomView"
+             x:DataType="viewModels:CustomViewModel">
+
+    <ScrollViewer>
+        <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="{ext:Space 1}">
+            <StackPanel.Styles>
+                <Style Selector="ui|SettingsExpander">
+                    <Setter Property="Margin" Value="0 0 0 4"/>
+                </Style>
+            </StackPanel.Styles>
+            
+            <ui:SettingsExpander Header="Export Weapon Images" Description="Search and export all the weapon images with the given ids">
+                <ui:SettingsExpander.Footer>
+                    <Grid Width="500" ColumnDefinitions="*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+                        <TextBlock Grid.Row="0" HorizontalAlignment="Stretch" Margin="0 16 0 4">Ids:</TextBlock>
+                        <TextBox Grid.Row="1" HorizontalAlignment="Stretch" Margin="0 0 0 4" Height="100" AcceptsReturn="True" TextWrapping="Wrap" Text="{Binding ExportWeaponIds}"/>
+                        <TextBlock Grid.Row="2" HorizontalAlignment="Stretch" Margin="0 16 0 4">Path:</TextBlock>
+                        <Grid Grid.Row="3" ColumnDefinitions="*,Auto" RowDefinitions="*" HorizontalAlignment="Stretch" Margin="0 0 0 4">
+                            <TextBox Grid.Column="0" HorizontalAlignment="Stretch" Margin="0 0 4 0" TextWrapping="Wrap" Text="{Binding ExportWeaponImagesPath}"/>
+                            <Button Grid.Column="1" Command="{Binding ExportWeaponImagesSelectPathCommand}">
+                                <ui:SymbolIcon Symbol="Folder"/>
+                            </Button>
+                        </Grid>
+                        <Button Grid.Row="4" HorizontalAlignment="Stretch" Margin="0 16 0 4" Command="{Binding ExportWeaponImagesExecuteCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Execute" Margin="0 0 4 0"/>
+                                <ui:SymbolIcon Symbol="Play"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </ui:SettingsExpander.Footer>
+            </ui:SettingsExpander>
+
+        </StackPanel>
+    </ScrollViewer>
+
+</UserControl>
